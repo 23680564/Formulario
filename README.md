@@ -320,6 +320,174 @@ Esto divide la pantalla en dos partes:
 
      <img width="835" height="616" alt="image" src="https://github.com/user-attachments/assets/93de2b50-35e6-427e-a596-a7c52909bebb" />
 
+     ## Codigo completo
+     
+```
+import flet as ft
+import re
+
+def main(page: ft.Page):
+    page.title = "Registro de Estudiantes"
+    page.window_width = 900
+    page.window_height = 650
+    page.bgcolor = "#B2EBF2"
+
+    # -----------------------------
+    # CAMPOS DEL FORMULARIO
+    # -----------------------------
+    txt_nombre = ft.TextField(label="Nombre completo")
+    txt_control = ft.TextField(
+        label="Número de Control",
+        keyboard_type=ft.KeyboardType.NUMBER,
+        input_filter=ft.NumbersOnlyInputFilter()
+    )
+    txt_email = ft.TextField(label="Correo electrónico")
+
+    dd_semestre = ft.Dropdown(
+        label="Semestre",
+        options=[ft.dropdown.Option(str(i)) for i in range(1, 7)]
+    )
+
+    dd_carrera = ft.Dropdown(
+        label="Carrera",
+        options=[
+            ft.dropdown.Option("Ingeniería en Sistemas"),
+            ft.dropdown.Option("Ingeniería Civil"),
+            ft.dropdown.Option("Ingeniería Industrial"),
+            ft.dropdown.Option("Contador Público"),
+            ft.dropdown.Option("Electrónica")
+        ]
+    )
+
+    genero_group = ft.RadioGroup(
+        content=ft.Row([
+            ft.Radio(value="Masculino", label="Masculino"),
+            ft.Radio(value="Femenino", label="Femenino")
+        ])
+    )
+
+    # -----------------------------
+    # LISTA DE REGISTROS
+    # -----------------------------
+    lista_registros = ft.Column(scroll="auto")
+    total = 0
+    contador = ft.Text("Total registrados: 0")
+
+    # PANEL LATERAL (inicialmente vacío)
+    panel_lateral = ft.Container(
+        width=400,
+        padding=15,
+        bgcolor="white",
+        visible=False
+    )
+
+    # -----------------------------
+    # FUNCIÓN GUARDAR
+    # -----------------------------
+    def guardar(e):
+        nonlocal total
+
+        email_valido = re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", txt_email.value or "")
+
+        if (txt_nombre.value and txt_control.value and email_valido
+            and dd_carrera.value and dd_semestre.value and genero_group.value):
+
+            # Crear registro visual
+            registro = ft.Container(
+                content=ft.Column([
+                    ft.Text(f"Nombre: {txt_nombre.value}"),
+                    ft.Text(f"Número de Control: {txt_control.value}"),
+                    ft.Text(f"Correo: {txt_email.value}"),
+                    ft.Text(f"Carrera: {dd_carrera.value}"),
+                    ft.Text(f"Semestre: {dd_semestre.value}"),
+                    ft.Text(f"Género: {genero_group.value}")
+                ]),
+                padding=10,
+                border=ft.border.all(1, "black"),
+                border_radius=8
+            )
+
+            lista_registros.controls.append(registro)
+
+            total += 1
+            contador.value = f"Total registrados: {total}"
+
+            # Mostrar en panel lateral
+            panel_lateral.content = ft.Column([
+                ft.Text("Último Registro Enviado",
+                        size=18,
+                        weight="bold"),
+                registro,
+                ft.Divider(),
+                ft.Text("Todos los Registros",
+                        size=18,
+                        weight="bold"),
+                lista_registros,
+                contador,
+                ft.ElevatedButton("Cerrar Panel", on_click=cerrar_panel)
+            ], scroll="auto")
+
+            panel_lateral.visible = True
+
+            # Limpiar campos
+            txt_nombre.value = ""
+            txt_control.value = ""
+            txt_email.value = ""
+            dd_carrera.value = None
+            dd_semestre.value = None
+            genero_group.value = None
+
+        else:
+            page.snack_bar = ft.SnackBar(
+                ft.Text("Error, falta de datos"),
+                bgcolor="red"
+            )
+            page.snack_bar.open = True
+
+        page.update()
+
+    def cerrar_panel(e):
+        panel_lateral.visible = False
+        page.update()
+
+    # -----------------------------
+    # INTERFAZ PRINCIPAL
+    # -----------------------------
+    formulario = ft.Container(
+        content=ft.Column([
+            ft.Text("Formulario de Registro",
+                    size=24,
+                    weight="bold"),
+
+            txt_nombre,
+            txt_control,
+            txt_email,
+            dd_carrera,
+            dd_semestre,
+
+            ft.Row([
+                ft.Text("Género:"),
+                genero_group
+            ]),
+
+            ft.ElevatedButton("Enviar", on_click=guardar)
+        ],
+        spacing=15),
+        padding=20,
+        width=400
+    )
+
+    # Mostrar formulario a la izquierda y panel a la derecha
+    page.add(
+        ft.Row([
+            formulario,
+            panel_lateral
+        ])
+    )
+
+ft.app(target=main)
+```
+
 
 
 
