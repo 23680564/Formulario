@@ -40,7 +40,7 @@ El objetivo principal es reforzar el uso de controles gráficos, validaciones y 
   `(venv) C:\ruta-del-proyecto>`
 
  - Activar el entorno virtual desde Linux/MacOs
- - 
+  
  ### Paso 1: Crear entorno virtual
  `python3 -m venv venv`
 
